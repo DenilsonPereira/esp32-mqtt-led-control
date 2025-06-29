@@ -1,0 +1,16 @@
+# Arquivos e pastas gerados pelo ESP-IDF
+/build/
+
+# Arquivos binários gerados
+*.bin
+*.elf
+*.map
+
+# Arquivos de configuração do VSCode que podem conter caminhos locais
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+.vscode/browse.vc.db*
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
