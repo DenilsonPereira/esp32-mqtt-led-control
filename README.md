@@ -1,78 +1,90 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C5 | ESP32-C6 | ESP32-C61 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | --------- | -------- | -------- | -------- | -------- |
+<h1>Acender led do ESP32 usando por meio de cliente MQTT via wi-fi</h1>
 
-# ESP-MQTT sample application
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+<i>Este projeto implementa um cliente MQTT que se conecta a um broker, e se inscreve no tópico específico na atividade /ifpe/ads/embarcados/esp32/led e controla o estado do LED embutido na placa ESP no GPIO 2 com base nas mensagens recebidas do cliente inscrito no tópico ("1" para ligar, "0" para desligar).</i>
 
-This example connects to the broker URI selected using `idf.py menuconfig` (using mqtt tcp transport) and as a demonstration subscribes/unsubscribes and send a message on certain topic.
-(Please note that the public broker is maintained by the community so may not be always available, for details please see this [disclaimer](https://iot.eclipse.org/getting-started/#sandboxes))
+Inicialmente, é necessário que você tenha o ESP-IDF instalado em seu VScode para rodar o código.
 
-Note: If the URI equals `FROM_STDIN` then the broker address is read from stdin upon application startup (used for testing)
+Foi utilizado para realizar o teste de funcionamento desse projeto como Broker local o <b>Mosquitto</b> e o <b>MQTTX</b> como cliente para enviar a mensagem.
 
-It uses ESP-MQTT library which implements mqtt client to connect to mqtt broker with MQTT version 5.
+<h1>Instruções para rodar o projeto na sua máquina usando o ESP-IDF no VScode, o broker Mosquitto e o cliente MQTTX.</h1> 
 
-The more details about MQTT v5, please refer to [official website](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html)
+<h2>Instalação de broker e cliente</h2>
+<h3>Broker Mosquitto:</h3>
 
-## How to use example
+Faça o download e instale o broker <b>Mosquitto</b> em sua máquina https://mosquitto.org/download/
 
-### Hardware Required
-
-This example can be executed on any ESP32 board, the only required interface is WiFi and connection to internet.
-
-### Configure the project
-
-* Open the project configuration menu (`idf.py menuconfig`)
-* Configure Wi-Fi or Ethernet under "Example Connection Configuration" menu. See "Establishing Wi-Fi or Ethernet Connection" section in [examples/protocols/README.md](../../README.md) for more details.
-* MQTT v5 protocol (`CONFIG_MQTT_PROTOCOL_5`) under "ESP-MQTT Configurations" menu is enabled by `sdkconfig.defaults`.
-
-### Build and Flash
-
-Build the project and flash it to the board, then run monitor tool to view serial output:
+1. Realize o download e a instalação do Mosquitto compatível com seu sistema operacional. 
+2. Siga as instruções do instalador, utilizando as opções padrão.
+3. Navegue até o diretório de instalação do Mosquitto e edite o arquivo de configuração mosquitto.conf com um editor de texto.
+4. Adicione as seguintes linhas ao final do arquivo para habilitar o listener na porta padrão e permitir conexões anônimas. Salve o arquivo.
 
 ```
-idf.py -p PORT flash monitor
+listener 1883
+allow_anonymous true
 ```
 
-(To exit the serial monitor, type ``Ctrl-]``.)
-
-See the Getting Started Guide for full steps to configure and use ESP-IDF to build projects.
-
-## Example Output
-
+4. Abra um terminal `(como administrador no Windows)` e navegue até o diretório de instalação do Mosquitto.
+5. Inicie o broker com o seguinte comando para carregar a configuração e exibir logs de conexão no console:
 ```
-I (5119) esp_netif_handlers: example_connect: sta ip: 192.168.3.143, mask: 255.255.255.0, gw: 192.168.3.1
-I (5119) example_connect: Got IPv4 event: Interface "example_connect: sta" address: 192.168.3.143
-I (5619) example_connect: Got IPv6 event: Interface "example_connect: sta" address: fe80:0000:0000:0000:c64f:33ff:fe24:6645, type: ESP_IP6_ADDR_IS_LINK_LOCAL
-I (5619) example_connect: Connected to example_connect: sta
-I (5629) example_connect: - IPv4 address: 192.168.3.143
-I (5629) example_connect: - IPv6 address: fe80:0000:0000:0000:c64f:33ff:fe24:6645, type: ESP_IP6_ADDR_IS_LINK_LOCAL
-I (5649) MQTT5_EXAMPLE: Other event id:7
-W (6299) wifi:<ba-add>idx:0 (ifx:0, 34:29:12:43:c5:40), tid:7, ssn:0, winSize:64
-I (7439) MQTT5_EXAMPLE: MQTT_EVENT_CONNECTED
-I (7439) MQTT5_EXAMPLE: sent publish successful, msg_id=53118
-I (7439) MQTT5_EXAMPLE: sent subscribe successful, msg_id=41391
-I (7439) MQTT5_EXAMPLE: sent subscribe successful, msg_id=13695
-I (7449) MQTT5_EXAMPLE: sent unsubscribe successful, msg_id=55594
-I (7649) mqtt5_client: MQTT_MSG_TYPE_PUBACK return code is -1
-I (7649) MQTT5_EXAMPLE: MQTT_EVENT_PUBLISHED, msg_id=53118
-I (8039) mqtt5_client: MQTT_MSG_TYPE_SUBACK return code is 0
-I (8049) MQTT5_EXAMPLE: MQTT_EVENT_SUBSCRIBED, msg_id=41391
-I (8049) MQTT5_EXAMPLE: sent publish successful, msg_id=0
-I (8059) mqtt5_client: MQTT_MSG_TYPE_SUBACK return code is 2
-I (8059) MQTT5_EXAMPLE: MQTT_EVENT_SUBSCRIBED, msg_id=13695
-I (8069) MQTT5_EXAMPLE: sent publish successful, msg_id=0
-I (8079) MQTT5_EXAMPLE: MQTT_EVENT_DATA
-I (8079) MQTT5_EXAMPLE: key is board, value is esp32
-I (8079) MQTT5_EXAMPLE: key is u, value is user
-I (8089) MQTT5_EXAMPLE: key is p, value is password
-I (8089) MQTT5_EXAMPLE: payload_format_indicator is 1
-I (8099) MQTT5_EXAMPLE: response_topic is /topic/test/response
-I (8109) MQTT5_EXAMPLE: correlation_data is 123456
-I (8109) MQTT5_EXAMPLE: content_type is 
-I (8119) MQTT5_EXAMPLE: TOPIC=/topic/qos1
-I (8119) MQTT5_EXAMPLE: DATA=data_3
-I (8129) mqtt5_client: MQTT_MSG_TYPE_UNSUBACK return code is 0
-I (8129) MQTT5_EXAMPLE: MQTT_EVENT_UNSUBSCRIBED, msg_id=55594
-I (8139) mqtt_client: Client asked to disconnect
-I (9159) MQTT5_EXAMPLE: MQTT_EVENT_DISCONNECTED
+mosquitto -c mosquitto.conf -v
 ```
+> <b>Observação:</b> No Windows pode ocorrer problema com o firewall relacionado a porta que o Broker irá utilizar, para habilitar essa permissão faça uma regra de firewall como a descrita abaixo.
+- Aperte os botões `Windows + R` simultaneamente e digite `wf.msc`;
+- Clique em `Regras de Entrada`, ao lado clique em `Nova Regra`;
+- Selecione a opção `Porta` e avançar;
+- Na próxima tela deixe a opção `TCP` marcada, e na parte <b>"Portas locais específicas"</b>, digite a porta do Broker por padrão é `1883` e clique em avançar;
+- Agora deixe na opção `Permitir a conexão` e avançar;
+- Nessa nova etapa pode deixar as duas primeiras opções marcadas e avançar;
+- Para finalizar dê um nome para a regra `(Ex: Mosquitto 1883)` e aperte em concluir.
+  
+<h3>Cliente MQTTX:</h3>
+Da mesma forma baixe e instale o cliente <b>MQTTX</b> https://mqttx.app/downloads.
+
+- Realize o download e a instalação do <b>MQTTX</b>. A instalação é direta e segue o padrão do seu sistema operacional.
+
+
+<h2>Configurando o projeto para suas credenciais</h2>
+Abra o VScode e a extensão <b>ESP-IDF</b>, faça um clone desse projeto e importe no <b>ESP-IDF</b>.
+
+Agora com o projeto aberto no <b>ESP-IDF</b>, iremos realizar as alterações abaixo:
+
+- No arquivo `sdkconfig`:
+
+Na linha `412`, configuramos o broker:
+```
+CONFIG_BROKER_URL="mqtt://mqtt.eclipseprojects.io"
+```
+Onde tem `mqtt.eclipseprojects.io`, você deve modificar para o endereço <b>IP</b> do seu pc, caso não saiba o endereço IP, abra o cmd do computador (se for Windows) e digite `ipconfig`, e pegue o endereço <b>IPV4</b>.
+
+Nas linhas `425` e `426` iremos configurar a nossa rede que o <b>ESP32</b> irá se conectar:
+```
+CONFIG_EXAMPLE_WIFI_SSID="myssid"
+CONFIG_EXAMPLE_WIFI_PASSWORD="mypassword"
+```
+
+No lugar de `myssid` coloque o nome do seu wi-fi `(Utilizar a rede wi-fi da frequência de 2.4)`, e no lugar de `mypassword` coloque a senha do seu wi-fi.
+
+
+Após isso, com o <b>ESP32</b> conectado no computador via USB. aperte no ESP-IDF no ícone de 'chama' (build, flash e monitor), para mandar o código para a placa e rodar o projeto.
+
+- Na interface do VSCode, utilize a funcionalidade "Build, Flash, and Monitor" da extensão ESP-IDF (representada por um ícone de chama).
+
+Este processo irá compilar o projeto, gravar o firmware na placa e iniciar o monitor serial, onde você poderá acompanhar os logs de execução.
+
+
+<h2>Conectando o MQTTX no broker e adicionando o tópico para enviar a mensagem para o ESP32</h2>
+
+1. Abra o programa MQTTX, e clique em `new connection`.
+2. Configure a conexão:
+   
+   - Name: Forneça um nome descritivo (ex: Teste LED ESP32).
+   - Host: Selecione `mqtt://` e insira o mesmo endereço IP do broker configurado no projeto.
+   - Mantenha as demais configurações padrão e clique em `Connect`.
+
+3. Com a conexão estabelecida, configure a mensagem a ser enviada:
+   - Na seção de publicação na parte inferior direita, defina o formato do payload para `Plaintext`.
+   - Defina o QoS como `1`.
+   - No campo <b>Topic</b>, insira o tópico exato definido no projeto: `/ifpe/ads/embarcados/esp32/led`.
+   - Na área de texto do <b>payload</b>, digite `1` para ligar o LED ou `0` para desligar.
+     
+4. Clique no botão de envio (ícone verde de avião de papel). O LED na sua placa ESP32 deverá mudar de estado instantaneamente. Os logs da operação podem ser visualizados no monitor serial do ESP-IDF.
