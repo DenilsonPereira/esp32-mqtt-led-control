@@ -1,6 +1,6 @@
 <h1>Acender led do ESP32 usando por meio de cliente MQTT via wi-fi</h1>
 
-<i>Este projeto implementa um cliente MQTT que se conecta a um broker, e se inscreve no tópico específico na atividade /ifpe/ads/embarcados/esp32/led e controla o estado do LED embutido na placa ESP no GPIO 2 com base nas mensagens recebidas do cliente inscrito no tópico ("1" para ligar, "0" para desligar).</i>
+<i>Este projeto implementa um cliente MQTT que se conecta a um broker, e se inscreve no tópico específicado na atividade `/ifpe/ads/embarcados/esp32/led` e controla o estado do LED embutido na placa <b>ESP32</b> no <b>GPIO 2</b> com base nas mensagens recebidas do cliente inscrito no tópico ("1" para ligar, "0" para desligar).</i>
 
 Inicialmente, é necessário que você tenha o ESP-IDF instalado em seu VScode para rodar o código.
 
